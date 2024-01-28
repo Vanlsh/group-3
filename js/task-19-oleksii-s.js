@@ -5,14 +5,14 @@ function getData(key) {
 }
 
 function getUniqueID() {
-	unique = String(Date.now());
+	return String(Date.now());
 }
 
 //////////// функція для додавання товару до бази даних ////////////
 
 function addItem(product) {
 	const productObj = {
-		id: unique,
+		id: getUniqueID(),
 		name: product,
 	};
 
@@ -24,7 +24,6 @@ function addItem(product) {
 //////////// функція для видалення товару з бази даних ////////////
 
 function removeItem(buttonID) {
-	console.log(buttonID);
 	localStorage.setItem(
 		'cart',
 		JSON.stringify(getData('cart').filter(product => product.id !== buttonID)),
@@ -35,18 +34,25 @@ function removeItem(buttonID) {
 
 function renderItem(product) {
 	const productElement = document.createElement('li');
-	productElement.style.display = 'flex';
-	productElement.style.justifyContent = 'space-between';
+	setTimeout(() => {
+		productElement.classList.toggle('rendered');
+	}, 250);
 	productElement.textContent = product;
 
 	const removeButton = document.createElement('button');
 	removeButton.setAttribute('type', 'button');
-	removeButton.setAttribute('data-id', `${unique}`);
+	removeButton.setAttribute(
+		'data-id',
+		`${getData('cart').find(x => x.name === product).id}`,
+	);
 	removeButton.textContent = 'Видалити';
 
 	removeButton.addEventListener('click', e => {
-		removeItem(e.target.dataset.id);
-		cart.removeChild(e.target.parentElement);
+		productElement.classList.toggle('rendered');
+		setTimeout(() => {
+			removeItem(e.target.dataset.id);
+			cart.removeChild(e.target.parentElement);
+		}, 160);
 	});
 
 	productElement.appendChild(removeButton);
@@ -74,17 +80,17 @@ function resetCart() {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-let unique;
-
 const cart = document.querySelector('#task-list');
-cart.style.listStyleType = 'none';
-cart.style.width = '250px';
-const cartTitle = document.createElement('h3');
-cartTitle.textContent = 'Мій кошик:';
-cart.before(cartTitle);
-
 const form = document.querySelector('#task-form');
-form.style.display = 'inline';
+const mainTitle = document.createElement('h3');
+const clearButton = document.createElement('button');
+
+mainTitle.textContent = 'Мій кошик:';
+form.before(mainTitle);
+clearButton.classList.add('js-clear-button');
+clearButton.setAttribute('type', 'button');
+clearButton.textContent = 'Очистити кошик';
+form.append(clearButton);
 
 form.addEventListener('submit', e => {
 	e.preventDefault();
@@ -94,17 +100,11 @@ form.addEventListener('submit', e => {
 	}
 
 	const productName = form.elements.taskName.value.trim();
-	getUniqueID();
+
 	addItem(productName);
 	renderItem(productName);
 	form.reset();
 });
-
-const clearButton = document.createElement('button');
-clearButton.classList.add('js-remove-button');
-clearButton.setAttribute('type', 'button');
-clearButton.textContent = 'Очистити кошик';
-form.after(clearButton);
 
 clearButton.addEventListener('click', resetCart);
 
