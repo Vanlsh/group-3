@@ -19,16 +19,11 @@ ul {
 	transition: all 150ms cubic-bezier(0.47, 0, 0.745, 0.715);
 }
 
-.js-text-hidden {
-	visibility: hidden;
-	opacity: 0;
-}
-
 li {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	border-top: 1px solid rgba(119, 136, 153, 0.1);
+	border-bottom: 1px solid rgba(119, 136, 153, 0.1);
 	padding: 10px 0;
 	visibility: hidden;
 	opacity: 0;
@@ -41,7 +36,12 @@ li.rendered {
 }
 
 li:last-of-type {
-	border-bottom: 1px solid rgba(119, 136, 153, 0.1);
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+li:first-of-type {
+	padding-top: 0;
 }
 
 a {
