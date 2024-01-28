@@ -43,7 +43,7 @@ function renderItem(product) {
 	removeButton.setAttribute('type', 'button');
 	removeButton.setAttribute(
 		'data-id',
-		`${getData('cart').find(x => x.name === product).id}`,
+		`${getData('cart').findLast(x => x.name === product).id}`,
 	);
 	removeButton.textContent = 'Видалити';
 
