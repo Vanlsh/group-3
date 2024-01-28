@@ -1,19 +1,18 @@
+//////////////////////// helpers ////////////////////////
+
 function getData(key) {
 	return JSON.parse(localStorage.getItem(key)) || [];
 }
 
-function generateId(element) {
-	if (element === 'product') {
-		return String(getData('cart').length + 1).padStart(3, '0') || 0;
-	}
-	if (element === 'button') {
-		return String(getData('cart').length).padStart(3, '0') || 0;
-	}
+function getUniqueID() {
+	unique = String(Date.now());
 }
+
+//////////// функція для додавання товару до бази даних ////////////
 
 function addItem(product) {
 	const productObj = {
-		id: generateId('product'),
+		id: unique,
 		name: product,
 	};
 
@@ -22,41 +21,31 @@ function addItem(product) {
 	localStorage.setItem('cart', JSON.stringify(cartContent));
 }
 
+//////////// функція для видалення товару з бази даних ////////////
+
 function removeItem(buttonID) {
+	console.log(buttonID);
 	localStorage.setItem(
 		'cart',
 		JSON.stringify(getData('cart').filter(product => product.id !== buttonID)),
 	);
 }
 
-function renderCart() {
-	if (!getData('cart').length) {
-		cart.innerHTML = 'My Cart:';
-		return;
-	}
-	cart.innerHTML = 'My Cart:';
-	const cartContent = getData('cart');
-	cartContent.forEach(product => renderItem(product.name));
-}
-
-function resetCart() {
-	localStorage.setItem('cart', JSON.stringify([]));
-	renderCart();
-}
+//////////// функція для відображення доданого товару у кошику ////////////
 
 function renderItem(product) {
 	const productElement = document.createElement('li');
 	productElement.style.display = 'flex';
 	productElement.style.justifyContent = 'space-between';
+	productElement.textContent = product;
 
 	const removeButton = document.createElement('button');
 	removeButton.setAttribute('type', 'button');
-	removeButton.setAttribute('id', `${generateId('button')}`);
+	removeButton.setAttribute('data-id', `${unique}`);
 	removeButton.textContent = 'Видалити';
-	productElement.textContent = product;
 
 	removeButton.addEventListener('click', e => {
-		removeItem(removeButton.getAttribute('id'));
+		removeItem(e.target.dataset.id);
 		cart.removeChild(e.target.parentElement);
 	});
 
@@ -64,18 +53,38 @@ function renderItem(product) {
 	cart.appendChild(productElement);
 }
 
+//////////// функція для відображення кошика ////////////
+
+function renderCart() {
+	if (!getData('cart').length) {
+		cart.innerHTML = '';
+		return;
+	}
+	cart.innerHTML = '';
+	const cartContent = getData('cart');
+	cartContent.forEach(product => renderItem(product.name));
+}
+
+//////////// функція для очистки кошика ////////////
+
+function resetCart() {
+	localStorage.removeItem('cart');
+	renderCart();
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
+
+let unique;
 
 const cart = document.querySelector('#task-list');
 cart.style.listStyleType = 'none';
 cart.style.width = '250px';
-cart.style.display = 'flex';
-cart.style.flexDirection = 'column';
-cart.style.gap = '10px';
-cart.style.marginBottom = '40px';
+const cartTitle = document.createElement('h3');
+cartTitle.textContent = 'Мій кошик:';
+cart.before(cartTitle);
 
 const form = document.querySelector('#task-form');
-cart.innerHTML = 'My Cart:';
+form.style.display = 'inline';
 
 form.addEventListener('submit', e => {
 	e.preventDefault();
@@ -85,15 +94,17 @@ form.addEventListener('submit', e => {
 	}
 
 	const productName = form.elements.taskName.value.trim();
+	getUniqueID();
 	addItem(productName);
 	renderItem(productName);
 	form.reset();
 });
 
 const clearButton = document.createElement('button');
+clearButton.classList.add('js-remove-button');
 clearButton.setAttribute('type', 'button');
 clearButton.textContent = 'Очистити кошик';
-form.appendChild(clearButton);
+form.after(clearButton);
 
 clearButton.addEventListener('click', resetCart);
 
